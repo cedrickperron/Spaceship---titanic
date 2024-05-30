@@ -3,9 +3,9 @@ This is the Kaggle competition: spaceship - titanic. We provide various machine 
 
 ## Packages
 
-\```bash
+```bash
 bash setup_env.sh
-\```
+```
 
 
 
