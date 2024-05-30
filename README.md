@@ -34,6 +34,23 @@ Model parameters are stored in ./save/
 ## Procedure
 Can run each model individually by running the model file:
 ```bash
+python ./source/classical_models/KNNClassifier.py
+```
+
+```bash
+python ./source/classical_models/LogisticRegressor.py
+```
+
+```bash
+python ./source/classical_models/RandomForest.py
+```
+
+
+```bash
+python ./source/classical_models/NeuralNetwork.py
+```
+
+```bash
 python ./source/quantum_models/QuantumNN.py
 ```
 This will run the default model (Strongly Entangling Layers circuit). To run the (Matrix Product State circuit), you need to set MPS = True in __name__ == '__main__'
