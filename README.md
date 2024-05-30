@@ -5,7 +5,7 @@ This is the Kaggle competition: spaceship - titanic. We provide various machine 
 pip install tensorflow scikit-learn pennylane torch
 
 
-### Models
+## Models
 We train multiple models:
 - Random Forest
 - kNN
@@ -16,7 +16,7 @@ We train multiple models:
 
 
 
-#### Results
+## Results
 
 
 ![Training and Validation Accuracies for Classical Classifier](./result/accuracy_classical.png)
