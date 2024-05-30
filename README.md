@@ -5,7 +5,6 @@ This is the Kaggle competition: spaceship - titanic. We provide various machine 
 
 \```bash
 bash setup_env.sh
-
 \```
 
 
