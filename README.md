@@ -41,4 +41,4 @@ This will run the default model (Strongly Entangling Layers circuit). To run the
 # TODO
 - Add a main.py file that runs all the models and print it in the files ./result/accuracy_data.txt et ./result/time_data.txt
 - Add argument parsers (--MPS --SEL) and also more relevant arguments like the number of input features (m), the number of qubits per circuit (n_qubits) and the number of layers in each circuit (n_layers)
-- Add a Quantum Kernel Methods
+- Add a Quantum Kernel Method
