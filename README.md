@@ -1,7 +1,7 @@
 # Spaceship---titanic
 This is the Kaggle competition: spaceship - titanic. We provide various machine learning solutions - both classical and quantum - to this problem.
 
-## Environment
+## Set-up
 
 ```bash
 bash setup_env.sh
