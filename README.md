@@ -2,9 +2,11 @@
 This is the Kaggle competition: spaceship - titanic. We provide various machine learning solutions - both classical and quantum - to this problem.
 
 ## Packages
+
 ```bash
 bash setup_env.sh
-
+```bash
+bash setup_env.sh
 
 
 
