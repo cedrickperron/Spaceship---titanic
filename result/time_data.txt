@@ -1,0 +1,6 @@
+RandomForestClassifierCustom     143.87896013259888
+KNNClassifier     20.808533906936646
+LogisticRegressionClassifier     12.746639251708984
+NeuralNetworkClassifier     75.94825863838196
+QuantumNeuralNetwork MPS     226.0145502090454
+QuantumNeuralNetwork SEL     492.3444437980652
