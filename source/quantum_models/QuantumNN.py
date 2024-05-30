@@ -9,11 +9,13 @@ import pennylane as qml
 import pennylane.numpy as npp
 import matplotlib.pyplot as plt
 
-import sys
-sys.path.append("../classical_models")
+
 from NeuralNetwork import NeuralNetworkClassifier
-sys.path.append("../quantum_models")
 from QuantumCircuit import StronglyEntanglingQuantumCircuit, BaseQuantumCircuit, MPSQuantumCircuit
+
+from time import time
+
+
 
 # FILTER OUT SOME WARNING
 import warnings
@@ -46,6 +48,7 @@ class QuantumNeuralNetwork(NeuralNetworkClassifier):
     def __init__(self, X_train, X_test, y_train, y_test):
         super().__init__(X_train, X_test, y_train, y_test)
         self.x = Input(shape=(self.X_train.shape[1],))
+        
 
 
     def apply_qlayers(self, x, qm_circuit, concatenate = True, axis = 1, normalize = False):
@@ -108,7 +111,7 @@ class QuantumNeuralNetwork(NeuralNetworkClassifier):
         self.model = Model(inputs = inputs, outputs = outputs)
         return self.model
 
-    def create_default_model(self, m, units = 128, MPS = True, *args, **kwargs):
+    def create_default_model(self, m, MPS, units = 150, *args, **kwargs):
         """
         Creates the default model (choosing either MPS or StronglyEntanglingLayer)
 
@@ -129,39 +132,108 @@ class QuantumNeuralNetwork(NeuralNetworkClassifier):
 
         self.model = self.create_model(inputs, x)
         return self.model
+
+    def save_accuracy(self, MPS, filename="../../result/accuracy_data.txt", max_cut=None):
+            if MPS:
+                class_name = self.__class__.__name__ + "_MPS"
+            else:
+                class_name = self.__class__.__name__ + "_SEL"
+
+            # Get the testing accuracy
+            if max_cut is None:
+                # Predict on the training data
+                predictions = self.predict(self.X_train)
+                testing_accuracy = self.score(self.y_train, predictions)
+
+                # Get the validation accuracy
+                validation_accuracy = self.accuracy
+            else:
+                # Predict on the training data with max_cut
+                predictions = self.predict(self.X_train[:max_cut])
+                testing_accuracy = self.score(self.y_train[:max_cut], predictions)
+
+                # Get the validation accuracy with max_cut
+                if self.accuracy is None:
+                    val_predictions = self.predict(self.X_test[:max_cut])
+                    validation_accuracy = self.score(self.y_test[:max_cut], val_predictions)
+                else:
+                     validation_accuracy = self.accuracy
+
+            # Check if class_name is already in the file
+            found = False
+            with open(filename, "r") as f:
+                lines = f.readlines()
+                for i, line in enumerate(lines):
+                    if class_name in line:
+                        found = True
+                        # Update the accuracy for the existing class_name
+                        lines[i] = f"{class_name}     {testing_accuracy:.4f}     {validation_accuracy:.4f}     {str(max_cut)}\n"
+                        break
+
+            # If class_name is not found, append the new data
+            if not found:
+                lines.append(f"{class_name}     {testing_accuracy:.4f}     {validation_accuracy:.4f}     {str(max_cut)}\n")
+                
+            # Write the updated data to the file
+            with open(filename, "w") as f:
+                f.writelines(lines)
+
+    def save_time(self, start_time, MPS, filename="../../result/time_data.txt"):
+        if MPS:
+            class_name = self.__class__.__name__ + " MPS"
+        else:
+            class_name = self.__class__.__name__ + " SEL"
+
+        current_time = time() - start_time
+
+        # Check if class_name is already in the file
+        found = False
+        with open(filename, "r") as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if class_name in line:
+                    found = True
+                    # Update the time for the existing class_name
+                    lines[i] = f"{class_name}     {current_time}\n"
+                    break
+
+        # If class_name is not found, append the new data
+        if not found:
+            lines.append(f"{class_name}     {current_time}\n")
+
+        # Write the updated data to the file
+        with open(filename, "w") as f:
+            f.writelines(lines)
+        
             
 
 if __name__ == '__main__':
+    from sys import path
+    path.append("../../utils/")
     import pre_processing
+    path.append("../")
+    
     from pre_processing import DataProcessor
-
-    dataset_df = pd.read_csv("./data/train.csv")
+    dataset_df = pd.read_csv("../../Data/train.csv")
     dataset_df = DataProcessor(dataset_df)
 
     X_train, X_test, y_train, y_test = dataset_df.run_and_split()
-    print(X_train.shape)
     n_layers = 5
-    n_wires = 5
-    m = 40
-    from time import time
+    n_wires = 4
+    m = 12
+    MPS = False
+    filename = "quantum_nn_model_SEL.keras"
+    assert m <= X_train.shape[1]
     s_t = time()
     # Create an instance of QuantumNeuralNetwork
     quantum_nn = QuantumNeuralNetwork(X_train, X_test, y_train, y_test)
-    print(time()-s_t)
-    s_t = time()
-    quantum_nn.model = quantum_nn.create_default_model(m, n_layers=n_layers, n_wires= n_wires, MPS = True)
-    print(time()-s_t)
-    # Fit the model
-    quantum_nn.fit(epochs = 20, batch_size = 100,  learning_rate = 0.01)
-    
-    print(time()-s_t)
-    # Predict
-    y_pred = quantum_nn.predict(X_test[:250])
+    quantum_nn.model = quantum_nn.create_default_model(m, MPS =  MPS, n_layers=n_layers, n_wires= n_wires)
+    quantum_nn.fit(learning_rate = 0.002)
 
-    # Calculate the score
-    score = quantum_nn.score(y_test[:250], y_pred)
 
-    print("Accuracy score:", score)
+    quantum_nn.save_model(filename = filename)
+    quantum_nn.save_time(s_t,  MPS = MPS)
+    quantum_nn.save_accuracy(MPS =  MPS, max_cut = 1000)
 
 
 

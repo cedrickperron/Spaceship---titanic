@@ -32,9 +32,10 @@ class BaseQuantumCircuit:
             return self.quantum_circuit(inputs, params)
         return qnode
 
-    def draw_circuit(self, x, params):
+    def draw_circuit(self, x, params, plot_name):
         qnode = self.create_qnode()
         fig, ax = qml.draw_mpl(qnode)(x, params)
+        plt.savefig(plot_name)
         plt.show()
 
     def normalize_inputs(self, x):
@@ -86,8 +87,8 @@ class MPSQuantumCircuit(BaseQuantumCircuit):
         for i in range(self.n_layers):
             for j in range(self.n_wires - 1):
                 # Debugging output
-                print(f"Layer {i}, Block {j}, Params shape: {params.shape}")
-                print(f"Layer {i}, Block {j}, Params: {params[i, j]}")
+                #print(f"Layer {i}, Block {j}, Params shape: {params.shape}")
+                #print(f"Layer {i}, Block {j}, Params: {params[i, j]}")
                 self.block(params[i, j], wires=[j, j + 1])
         if scalar_output:
             return qml.expval(qml.sum([qml.PauliZ(i) for i in range(self.n_wires)]))
@@ -138,19 +139,19 @@ if __name__ == '__main__':
     # Example usage
     n_layers = 5
     n_wires = 4
-    n_block_wires = 3
 
     X_train = np.random.random((5, n_wires))  # Example training data
     X_train = tf.convert_to_tensor(X_train)
 
     # Initialize the MPS quantum circuit
-    mps_circuit = MPSQuantumCircuit(n_layers, n_wires, n_block_wires)
+    mps_circuit = MPSQuantumCircuit(n_layers, n_wires)
     params_mps = mps_circuit.initialize_parameters()
-    mps_circuit.draw_circuit( X_train[1], params_mps)
+    mps_circuit.draw_circuit( X_train[1], params_mps, "MPS_circuit.png")
 
     # Initialize the StronglyEntanglingLayers quantum circuit
     strongly_entangling_circuit = StronglyEntanglingQuantumCircuit(n_layers, n_wires)
     params_entangling = strongly_entangling_circuit.initialize_parameters()
-    strongly_entangling_circuit.draw_circuit(X_train[1], params_entangling)
+    strongly_entangling_circuit.draw_circuit(X_train[1], params_entangling, "SEL_circuit.png")
+
 
 
