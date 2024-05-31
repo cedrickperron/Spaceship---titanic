@@ -10,7 +10,10 @@ import pennylane.numpy as npp
 import matplotlib.pyplot as plt
 
 
+from sys import path
+path.append("../classical_models/")
 from NeuralNetwork import NeuralNetworkClassifier
+path.append("../quantum_models/")
 from QuantumCircuit import StronglyEntanglingQuantumCircuit, BaseQuantumCircuit, MPSQuantumCircuit
 
 from time import time
